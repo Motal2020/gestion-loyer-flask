@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Locataire</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="text-center">🔑 Connexion Locataire</h2>
+
+        <form method="POST" action="{{ url_for('locataire_login') }}" class="mt-4 bg-white p-4 shadow rounded">
+            <div class="mb-3">
+                <label class="form-label">🏠 Nom du Locataire</label>
+                <input type="text" name="nom" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">📞 Numéro de Téléphone</label>
+                <input type="text" name="telephone" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Se Connecter</button>
+        </form>
+
+        <div class="text-center mt-4">
+            <a href="https://api.whatsapp.com/send?phone=23765198287878" class="btn btn-outline-success">WhatsApp</a>
+            <a href="mailto:mothoalex@gmail.com" class="btn btn-outline-primary">Contact par Email</a>
+        </div>
+    </div>
+</body>
+</html>

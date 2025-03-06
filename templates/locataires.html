@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Locataires</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">🏠 Gestion des Locataires</h1>
+
+        <!-- Formulaire d'ajout de locataire -->
+        <form action="{{ url_for('ajouter_locataire') }}" method="POST" class="bg-light p-4 rounded shadow mt-4">
+            <h3>➕ Ajouter un Locataire</h3>
+
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom du locataire :</label>
+                <input type="text" id="nom" name="nom" class="form-control" required>
+            </div>
+
+            <input type="hidden" name="fcm_token" id="fcm_token"> <!-- Champ caché pour le Token FCM -->
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email :</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="telephone" class="form-label">Téléphone :</label>
+                <input type="text" id="telephone" name="telephone" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="loyer" class="form-label">Loyer :</label>
+                <input type="number" id="loyer" name="loyer" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="date_entree" class="form-label">Date d'entrée :</label>
+                <input type="date" id="date_entree" name="date_entree" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">💾 Ajouter le Locataire</button>
+        </form>
+
+        <!-- Liste des locataires -->
+        <h2 class="mt-5">📜 Liste des Locataires</h2>
+        <table class="table table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Loyer</th>
+                    <th>Date d'Entrée</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for locataire in locataires %}
+                <tr>
+                    <td>{{ locataire.nom if locataire.nom else 'N/A' }}</td>
+                    <td>{{ locataire.email if locataire.email else 'N/A' }}</td>
+                    <td>{{ locataire.telephone if locataire.telephone else 'N/A' }}</td>
+                    <td>{{ locataire.loyer }} FCFA</td>
+                    <td>{{ locataire.date_entree if locataire.date_entree else 'Non définie' }}</td>
+                    <td>
+                        <!-- Bouton pour mettre à jour le Token -->
+                        <button onclick="forcerEnvoiToken('{{ locataire.id }}')" class="btn btn-info btn-sm">🔄 Mettre à jour Token</button>
+
+                        <!-- Formulaire de suppression -->
+                        <form action="{{ url_for('supprimer_locataire', locataire_id=locataire.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">🗑 Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Retour à l'accueil</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function forcerEnvoiToken(locataireId) {
+            messaging.getToken().then(token => {
+                console.log("✅ Token FCM récupéré :", token);
+                fetch('/enregistrer_token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ "token": token, "locataire_id": locataireId })
+                }).then(response => response.json())
+                  .then(data => console.log("✅ Token mis à jour :", data))
+                  .catch(error => console.error("❌ Erreur de mise à jour du token :", error));
+            }).catch(err => console.log("❌ Erreur lors de la récupération du token FCM", err));
+        }
+    </script>
+</body>
+</html>

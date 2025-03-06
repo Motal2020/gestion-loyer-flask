@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - Gestion Loyer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Gestion de Loyer</h1>
+        <div class="d-grid gap-2 col-6 mx-auto mt-4">
+            <!-- Liens vers les différentes fonctionnalités -->
+            <a href="{{ url_for('login') }}" class="btn btn-info">🔑 Connexion Bailleur</a>
+            <a href="{{ url_for('locataire_login') }}" class="btn btn-info">🔑 Connexion Locataire</a>
+            <a href="{{ url_for('configuration') }}" class="btn btn-secondary">⚙️ Configuration</a>
+            <a href="{{ url_for('ajouter_locataire') }}" class="btn btn-info">➕ Saisir un Locataire</a>
+            <a href="{{ url_for('date_entree_locataire') }}" class="btn btn-secondary">📅 Date d'Entrée Locataire</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">📊 Tableau de Bord</a>
+            <a href="{{ url_for('paiements') }}" class="btn btn-success">💰 Gérer les Paiements</a>
+            <a href="{{ url_for('locataires') }}" class="btn btn-warning">🏠 Gérer les Locataires</a>
+            <a href="{{ url_for('utilisateurs') }}" class="btn btn-dark">👥 Gérer les Utilisateurs</a>
+            <a href="{{ url_for('envoyer_rappels') }}" class="btn btn-danger">📩 Envoyer les Rappels</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">🚪 Déconnexion</a>
+        </div>
+    </div>
+
+    <!-- Scripts Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Scripts Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging.js"></script>
+
+    <!-- Script pour gérer les notifications Firebase -->
+    <script>
+        // Configuration Firebase (remplacez par vos propres valeurs)
+        const firebaseConfig = {
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_PROJET.firebaseapp.com",
+            projectId: "VOTRE_PROJET",
+            storageBucket: "VOTRE_PROJET.appspot.com",
+            messagingSenderId: "VOTRE_MESSAGING_ID",
+            appId: "VOTRE_APP_ID"
+        };
+
+        // Initialisation de Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        } else {
+            firebase.app(); // Utilise l'instance existante si déjà initialisée
+        }
+
+        // Vérification si Firebase Messaging est pris en charge
+        if (firebase.messaging.isSupported()) {
+            const messaging = firebase.messaging();
+
+            // Fonction pour enregistrer le token FCM côté serveur
+            function enregistrerTokenFCM(token) {
+                console.log("Enregistrement du token FCM sur le serveur...");
+                fetch('/enregistrer_token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ "token": token })
+                })
+                .then(response => response.json())
+                .then(data => console.log("Token mis à jour :", data))
+                .catch(error => console.error("Erreur de mise à jour du token :", error));
+            }
+
+            // Fonction pour configurer les notifications
+            function configurerNotifications() {
+                messaging.requestPermission()
+                    .then(() => {
+                        console.log("Permission accordée pour les notifications !");
+                        return messaging.getToken();
+                    })
+                    .then(token => {
+                        if (token) {
+                            console.log("Token FCM récupéré :", token);
+                            document.getElementById("fcm_token").value = token; // Stocker temporairement le token
+                            enregistrerTokenFCM(token); // Enregistrer le token côté serveur
+                        } else {
+                            console.warn("Aucun token FCM généré !");
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Erreur lors de la récupération du token FCM :", err);
+                        alert("Autorisation refusée. Activez les notifications dans les paramètres.");
+                    });
+            }
+
+            // Vérifie si un ancien token est enregistré et le supprime si besoin
+            messaging.getToken().then(currentToken => {
+                if (currentToken) {
+                    console.log("Ancien token FCM détecté :", currentToken);
+                    enregistrerTokenFCM(currentToken);
+                } else {
+                    console.warn("Aucun token existant. Demande d'un nouveau...");
+                    configurerNotifications();
+                }
+            });
+
+            // Écouteur pour gérer la réception des notifications en arrière-plan
+            messaging.onMessage(payload => {
+                console.log("Notification reçue :", payload);
+                alert(`Nouvelle notification : ${payload.notification.title}\n${payload.notification.body}`);
+            });
+
+        } else {
+            console.error("Firebase Messaging n'est pas pris en charge par ce navigateur.");
+            alert("Votre navigateur ne prend pas en charge les notifications push !");
+        }
+    </script>
+
+    <!-- Champ caché pour stocker le token FCM -->
+    <input type="hidden" id="fcm_token" name="fcm_token">
+</body>
+</html>

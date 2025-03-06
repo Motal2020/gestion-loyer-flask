@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Locataire</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Ajouter un Locataire</h1>
+
+<form action="{{ url_for('ajouter_locataire') }}" method="POST" class="bg-white p-4 shadow rounded">
+    <div class="mb-3">
+        <label class="form-label">🏠 Nom du Locataire</label>
+        <input type="text" name="nom" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">📧 Email</label>
+        <input type="email" name="email" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">📞 Téléphone</label>
+        <input type="text" name="telephone" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">💰 Loyer Mensuel</label>
+        <input type="number" name="loyer" class="form-control" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">💾 Enregistrer</button>
+</form>
+
+        <a href="{{ url_for('locataires') }}" class="btn btn-secondary mt-3">Retour à la liste des locataires</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
