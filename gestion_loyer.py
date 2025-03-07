@@ -8,15 +8,20 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
 import base64
+import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement depuis un fichier .env
+load_dotenv()
 
 # Initialisation de Flask
 app = Flask(__name__)
-app.secret_key = 'votre_cle_secrete'
+app.secret_key = os.getenv('SECRET_KEY')
 
 # Initialisation de Firebase
 def initialize_firebase():
     if not firebase_admin._apps:
-        cred = credentials.Certificate("firebase_key.json")
+        cred = credentials.Certificate(os.getenv('FIREBASE_KEY_PATH'))
         firebase_admin.initialize_app(cred)
     return firestore.client()
 
@@ -25,13 +30,13 @@ db = initialize_firebase()
 # Configuration SMTP
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SMTP_EMAIL = "mothoalex@gmail.com"  # Remplace par ton adresse Gmail
-SMTP_PASSWORD = "nxng aliq szwv oodu"  # Remplace par le mot de passe d'application
+SMTP_EMAIL = os.getenv('SMTP_EMAIL')
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
 
 # Configuration API Orange Cameroun
-ORANGE_CLIENT_ID = "CXblxpxUMCh79lcLbbDZQs7gDoXVBmzI"
-ORANGE_CLIENT_SECRET = "Hs0aTlL2iMvRxOBuj7RYVWfnjRMy7bGZBxHqWOEwtPGR"
-ORANGE_AUTH_HEADER = "Basic Q1hibHhweFVNQ2g3OWxjTGJiRFpRczdnRG9YVkJtekk6SHMwYVRsTDJpTXZSeE9CdWo3UllWV2ZualJNeTdiR1pCeEhxV09Fd3RQR1I="
+ORANGE_CLIENT_ID = os.getenv('ORANGE_CLIENT_ID')
+ORANGE_CLIENT_SECRET = os.getenv('ORANGE_CLIENT_SECRET')
+ORANGE_AUTH_HEADER = os.getenv('ORANGE_AUTH_HEADER')
 
 # Fonction pour obtenir le token d'accès Orange
 def obtenir_token_orange():
@@ -51,7 +56,7 @@ def obtenir_token_orange():
 def envoyer_sms_orange(destinataire, message):
     try:
         token = obtenir_token_orange()
-        url = "https://api.orange.com/smsmessaging/v1/outbound/tel%3A%2B237696875895/requests"
+        url = f"https://api.orange.com/smsmessaging/v1/outbound/tel%3A%2B237696875895/requests"
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
