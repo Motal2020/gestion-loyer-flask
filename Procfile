@@ -1,1 +1,1 @@
-web: gunicorn gestion_loyer:app
+ gunicorn gestion_loyer:app
